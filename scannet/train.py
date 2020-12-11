@@ -10,6 +10,7 @@ import os
 import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
+DATA_ROOT = '/robotics_data/fanghy/pointnet2_data/'
 sys.path.append(BASE_DIR) # model
 sys.path.append(ROOT_DIR) # provider
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
@@ -64,7 +65,7 @@ HOSTNAME = socket.gethostname()
 NUM_CLASSES = 21
 
 # Shapenet official train/test split
-DATA_PATH = os.path.join(ROOT_DIR,'data','scannet_data_pointnet2')
+DATA_PATH = os.path.join(DATA_ROOT,'data','scannet_data_pointnet2')
 TRAIN_DATASET = scannet_dataset.ScannetDataset(root=DATA_PATH, npoints=NUM_POINT, split='train')
 TEST_DATASET = scannet_dataset.ScannetDataset(root=DATA_PATH, npoints=NUM_POINT, split='test')
 TEST_DATASET_WHOLE_SCENE = scannet_dataset.ScannetDatasetWholeScene(root=DATA_PATH, npoints=NUM_POINT, split='test')

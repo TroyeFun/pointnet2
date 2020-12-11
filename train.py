@@ -11,9 +11,11 @@ import tensorflow as tf
 import socket
 import importlib
 import os
+from os.path import exists, join
 import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = BASE_DIR
+DATA_ROOT = '/robotics_data/fanghy/pointnet2_data/'
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'models'))
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
@@ -70,11 +72,12 @@ NUM_CLASSES = 40
 # Shapenet official train/test split
 if FLAGS.normal:
     assert(NUM_POINT<=10000)
-    DATA_PATH = os.path.join(ROOT_DIR, 'data/modelnet40_normal_resampled')
+    DATA_PATH = os.path.join(DATA_ROOT, 'data/modelnet40_normal_resampled')
     TRAIN_DATASET = modelnet_dataset.ModelNetDataset(root=DATA_PATH, npoints=NUM_POINT, split='train', normal_channel=FLAGS.normal, batch_size=BATCH_SIZE)
     TEST_DATASET = modelnet_dataset.ModelNetDataset(root=DATA_PATH, npoints=NUM_POINT, split='test', normal_channel=FLAGS.normal, batch_size=BATCH_SIZE)
 else:
     assert(NUM_POINT<=2048)
+    modelnet_h5_dataset.download_data()
     TRAIN_DATASET = modelnet_h5_dataset.ModelNetH5Dataset(os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/train_files.txt'), batch_size=BATCH_SIZE, npoints=NUM_POINT, shuffle=True)
     TEST_DATASET = modelnet_h5_dataset.ModelNetH5Dataset(os.path.join(BASE_DIR, 'data/modelnet40_ply_hdf5_2048/test_files.txt'), batch_size=BATCH_SIZE, npoints=NUM_POINT, shuffle=False)
 
@@ -106,7 +109,7 @@ def get_bn_decay(batch):
 def train():
     with tf.Graph().as_default():
         with tf.device('/gpu:'+str(GPU_INDEX)):
-            pointclouds_pl, labels_pl = MODEL.placeholder_inputs(BATCH_SIZE, NUM_POINT)
+            pointclouds_pl, labels_pl = MODEL.placeholder_inputs(BATCH_SIZE, NUM_POINT, normal=FLAGS.normal)
             is_training_pl = tf.placeholder(tf.bool, shape=())
             
             # Note the global_step=batch parameter to minimize. 
@@ -118,7 +121,7 @@ def train():
             tf.summary.scalar('bn_decay', bn_decay)
 
             # Get model and loss 
-            pred, end_points = MODEL.get_model(pointclouds_pl, is_training_pl, bn_decay=bn_decay)
+            pred, end_points = MODEL.get_model(pointclouds_pl, is_training_pl, bn_decay=bn_decay, normal=FLAGS.normal)
             MODEL.get_loss(pred, labels_pl, end_points)
             losses = tf.get_collection('losses')
             total_loss = tf.add_n(losses, name='total_loss')

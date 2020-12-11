@@ -12,18 +12,26 @@ import numpy as np
 import tf_util
 from pointnet_util import pointnet_sa_module
 
-def placeholder_inputs(batch_size, num_point):
-    pointclouds_pl = tf.placeholder(tf.float32, shape=(batch_size, num_point, 3))
+def placeholder_inputs(batch_size, num_point, normal=False):
+    if normal:
+        pointclouds_pl = tf.placeholder(tf.float32, shape=(batch_size, num_point, 6))
+    else:
+        pointclouds_pl = tf.placeholder(tf.float32, shape=(batch_size, num_point, 3))
     labels_pl = tf.placeholder(tf.int32, shape=(batch_size))
     return pointclouds_pl, labels_pl
 
-def get_model(point_cloud, is_training, bn_decay=None):
+def get_model(point_cloud, is_training, bn_decay=None, normal=False):
     """ Classification PointNet, input is BxNx3, output Bx40 """
     batch_size = point_cloud.get_shape()[0].value
     num_point = point_cloud.get_shape()[1].value
     end_points = {}
-    l0_xyz = point_cloud
-    l0_points = None
+    if normal:
+        l0_xyz = tf.slice(point_cloud, [0,0,0], [-1,-1,3])
+        l0_points = tf.slice(point_cloud, [0,0,3], [-1,-1,3])
+    else:
+        l0_xyz = point_cloud
+        l0_points = None
+
     end_points['l0_xyz'] = l0_xyz
 
     # Set abstraction layers
