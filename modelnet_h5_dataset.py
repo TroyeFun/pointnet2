@@ -10,12 +10,13 @@ import h5py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 ROOT_DIR = BASE_DIR
+DATA_ROOT = '/robotics/fanghy/pointnet2_data/'
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 import provider
 
 
 # Download dataset for point cloud classification
-DATA_DIR = os.path.join(ROOT_DIR, 'data')
+DATA_DIR = os.path.join(DATA_ROOT, 'data')
 if not os.path.exists(DATA_DIR):
     os.mkdir(DATA_DIR)
 
@@ -23,7 +24,7 @@ def download_data():
     if not os.path.exists(os.path.join(DATA_DIR, 'modelnet40_ply_hdf5_2048')):
         www = 'https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip'
         zipfile = os.path.basename(www)
-        os.system('wget %s; unzip %s' % (www, zipfile))
+        os.system('wget --no-check-certificate %s; unzip %s' % (www, zipfile))
         os.system('mv %s %s' % (zipfile[:-4], DATA_DIR))
         os.system('rm %s' % (zipfile))
 

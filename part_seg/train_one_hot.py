@@ -10,6 +10,7 @@ import os
 import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
+DATA_ROOT = '/robotics_data/fanghy/pointnet2_data/'
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'models'))
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
@@ -19,7 +20,7 @@ import part_dataset_all_normal
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
-parser.add_argument('--model', default='model', help='Model name [default: model]')
+parser.add_argument('--model', default='pointnet2_part_seg_msg_one_hot', help='Model name [default: model]')
 parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
 parser.add_argument('--num_point', type=int, default=2048, help='Point Number [default: 2048]')
 parser.add_argument('--max_epoch', type=int, default=201, help='Epoch to run [default: 201]')
@@ -62,7 +63,7 @@ HOSTNAME = socket.gethostname()
 NUM_CLASSES = 50
 
 # Shapenet official train/test split
-DATA_PATH = os.path.join(ROOT_DIR, 'data', 'shapenetcore_partanno_segmentation_benchmark_v0_normal')
+DATA_PATH = os.path.join(DATA_ROOT, 'data', 'shapenetcore_partanno_segmentation_benchmark_v0_normal')
 TRAIN_DATASET = part_dataset_all_normal.PartNormalDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, split='trainval', return_cls_label=True)
 TEST_DATASET = part_dataset_all_normal.PartNormalDataset(root=DATA_PATH, npoints=NUM_POINT, classification=False, split='test', return_cls_label=True)
 
