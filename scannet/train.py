@@ -1,3 +1,4 @@
+# encoding: utf-8
 import argparse
 import math
 from datetime import datetime
@@ -13,6 +14,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 DATA_ROOT = '/robotics_data/fanghy/pointnet2_data/'
 sys.path.append(BASE_DIR) # model
 sys.path.append(ROOT_DIR) # provider
+sys.path.append(os.path.join(ROOT_DIR, 'models'))
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 import provider
 import tf_util
@@ -47,7 +49,7 @@ DECAY_STEP = FLAGS.decay_step
 DECAY_RATE = FLAGS.decay_rate
 
 MODEL = importlib.import_module(FLAGS.model) # import network module
-MODEL_FILE = os.path.join(BASE_DIR, FLAGS.model+'.py')
+MODEL_FILE = os.path.join(ROOT_DIR, 'models', FLAGS.model+'.py')
 LOG_DIR = FLAGS.log_dir
 if not os.path.exists(LOG_DIR): os.mkdir(LOG_DIR)
 os.system('cp %s %s' % (MODEL_FILE, LOG_DIR)) # bkp of model def
@@ -429,6 +431,11 @@ def eval_whole_scene_one_epoch(sess, ops, test_writer):
 
 
 if __name__ == "__main__":
+    #gpus= tf.config.experimental.list_physical_devices('GPU')
+    ## gpus= tf.config.list_physical_devices('GPU') # tf2.1版本该函数不再是experimental
+    #print(gpus) # 前面限定了只使用GPU1(索引是从0开始的,本机有2张RTX2080显卡)
+    #tf.config.experimental.set_memory_growth(gpus[0], True) # 其实gpus本身就只有一个元素
+
     log_string('pid: %s'%(str(os.getpid())))
     train()
     LOG_FOUT.close()
